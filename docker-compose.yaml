@@ -6,12 +6,13 @@ services:
       dockerfile: ./Dockerfile
     ports:
       - "8080:8080"
+    # environment:
+    #   - BACKEND_URL=http://backend:8081
     networks:
       - app-network
     depends_on:
       backend:
         condition: service_started
-        # condition: service_healthy
     restart: unless-stopped
 
   # Backend service.
@@ -27,11 +28,6 @@ services:
       - DB_USER=gouser
       - DB_PASSWORD=gopassword
       - DB_NAME=godb
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
-    #   interval: 5s
-    #   timeout: 5s
-    #   retries: 3
     depends_on:
       db:
         condition: service_healthy
@@ -52,7 +48,7 @@ services:
       - postgres_data:/var/lib/postgresql/data  # persist database across container restarts
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U gouser -d godb"]
-      interval: 30s
+      interval: 10s
       timeout: 5s
       retries: 3
     networks:
