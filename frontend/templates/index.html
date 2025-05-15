@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go Microservices Frontend</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { color: #007bff; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin-top: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover { background-color: #0056b3; }
+        #data-container { margin-top: 20px; padding: 15px; background-color: #e9ecef; border-radius: 5px; }
+        .error { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to the Microservices App!</h1>
+        <p>This frontend is served by a Go application.</p>
+        <button id="fetchDataBtn">Fetch Data from Backend</button>
+        <div id="data-container">
+            <p>Click the button to load data.</p>
+        </div>
+    </div>
+
+    <script>
+        // Get the backend URL from the Go template
+        // This is a simple way to pass configuration from Go to JavaScript
+        const backendUrl = "{{.BackendURL}}";
+
+        document.getElementById('fetchDataBtn').addEventListener('click', function() {
+            const dataContainer = document.getElementById('data-container');
+            dataContainer.innerHTML = '<p>Loading...</p>'; // Show loading state
+
+            // Fetch data from the backend API service
+            fetch(backendUrl + '/api/data') // Assumes backend is at this path
+                .then(response => {
+                    if (!response.ok) {
+                        // If response is not OK, throw an error to be caught by .catch()
+                        return response.text().then(text => { throw new Error('Network response was not ok: ' + response.status + ' ' + text) });
+                    }
+                    return response.json(); // Parse JSON data from the response
+                })
+                .then(data => {
+                    // Display the fetched data
+                    dataContainer.innerHTML = `
+                        <h3>Data from Backend:</h3>
+                        <p>ID: ${data.id}</p>
+                        <p>Message: ${data.message}</p>
+                        <p>Timestamp: ${new Date(data.timestamp).toLocaleString()}</p>
+                    `;
+                })
+                .catch(error => {
+                    // Display any errors that occurred during fetch
+                    console.error('Error fetching data:', error);
+                    dataContainer.innerHTML = `<p class="error">Error fetching data: ${error.message}</p>`;
+                });
+        });
+    </script>
+</body>
+</html>
