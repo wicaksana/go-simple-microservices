@@ -1,0 +1,14 @@
+# PersistentVolumeClaim for Postgres data.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: go-microservice-app
+spec:
+  resources:
+    requests:
+      storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce  # can be mounted as R/W by a single node.
+
