@@ -3,72 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Go Microservices Frontend</title>
+    <title>Go Data Fetcher</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
-        .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h1 { color: #007bff; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+        }
+        h1 {
+            color: #1a73e8; /* Google Blue */
+            margin-bottom: 25px;
+        }
         button {
-            background-color: #007bff;
+            background-color: #1a73e8;
             color: white;
             border: none;
-            padding: 10px 15px;
+            padding: 12px 25px;
             text-align: center;
             text-decoration: none;
             display: inline-block;
             font-size: 16px;
-            margin-top: 10px;
+            margin: 20px 0;
             cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
+            border-radius: 8px;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        button:hover { background-color: #0056b3; }
-        #data-container { margin-top: 20px; padding: 15px; background-color: #e9ecef; border-radius: 5px; }
-        .error { color: red; font-weight: bold; }
+        button:hover {
+            background-color: #1558b0; /* Darker blue */
+        }
+        button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+        }
+        #dataContainer {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #e8f0fe; /* Light blue background for data */
+            border-radius: 8px;
+            text-align: left;
+            min-height: 50px;
+            border: 1px solid #d1e0fc;
+        }
+        #dataContainer p, #dataContainer ul {
+            margin: 0;
+            padding: 0;
+        }
+        #dataContainer ul li {
+            list-style-type: none;
+            padding: 8px 0;
+            border-bottom: 1px solid #c0d6f7;
+        }
+        #dataContainer ul li:last-child {
+            border-bottom: none;
+        }
+        .loading-message, .error-message {
+            color: #5f6368;
+            font-style: italic;
+        }
+        .error-message {
+            color: #d93025; /* Google Red */
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Welcome to the Microservices App!</h1>
-        <p>This frontend is served by a Go application.</p>
-        <button id="fetchDataBtn">Fetch Data from Backend</button>
-        <div id="data-container">
-            <p>Click the button to load data.</p>
+        <h1>Data from Backend</h1>
+        <button id="fetchDataButton">Fetch Data</button>
+        <div id="dataContainer">
+            <p class="loading-message">Click the button to fetch data.</p>
         </div>
     </div>
 
     <script>
-        // Get the backend URL from the Go template
-        // This is a simple way to pass configuration from Go to JavaScript
-        const backendUrl = "{{.BackendURL}}";
+        // Get references to the button and the data container
+        const fetchDataButton = document.getElementById('fetchDataButton');
+        const dataContainer = document.getElementById('dataContainer');
 
-        document.getElementById('fetchDataBtn').addEventListener('click', function() {
-            const dataContainer = document.getElementById('data-container');
-            dataContainer.innerHTML = '<p>Loading...</p>'; // Show loading state
+        // Add event listener to the button
+        fetchDataButton.addEventListener('click', async () => {
+            // Display a loading message
+            dataContainer.innerHTML = '<p class="loading-message">Fetching data...</p>';
 
-            // Fetch data from the backend API service
-            fetch(backendUrl + '/api/data') // Assumes backend is at this path
-                .then(response => {
-                    if (!response.ok) {
-                        // If response is not OK, throw an error to be caught by .catch()
-                        return response.text().then(text => { throw new Error('Network response was not ok: ' + response.status + ' ' + text) });
-                    }
-                    return response.json(); // Parse JSON data from the response
-                })
-                .then(data => {
-                    // Display the fetched data
-                    dataContainer.innerHTML = `
-                        <h3>Data from Backend:</h3>
-                        <p>ID: ${data.id}</p>
-                        <p>Message: ${data.message}</p>
-                        <p>Timestamp: ${new Date(data.timestamp).toLocaleString()}</p>
-                    `;
-                })
-                .catch(error => {
-                    // Display any errors that occurred during fetch
-                    console.error('Error fetching data from ' + backendUrl + ':', error);
-                    dataContainer.innerHTML = `<p class="error">Error fetching data: ${error.message}</p>`;
-                });
+            try {
+                // Fetch data from the /data endpoint
+                const response = await fetch('/data');
+
+                // Check if the request was successful
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                // Parse the JSON response
+                const data = await response.json();
+
+                // Clear the loading message
+                dataContainer.innerHTML = '';
+
+                // Display the fetched data
+                if (data) {
+                    const ul = document.createElement('ul');
+                    const li = document.createElement('li');
+                    li.textContent = `ID: ${data.id}, Message: ${data.message}, Timestamp: ${data.timestamp}, Source: ${data.source}`;
+                    ul.appendChild(li);
+                    dataContainer.appendChild(ul);
+                } else {
+                    dataContainer.innerHTML = '<p class="loading-message">No data received from the server.</p>';
+                }
+
+            } catch (error) {
+                // Display an error message
+                console.error('Error fetching data:', error);
+                dataContainer.innerHTML = `<p class="error-message">Failed to fetch data. Check the console for details. Error: ${error.message}</p>`;
+            }
         });
     </script>
 </body>
