@@ -16,41 +16,41 @@ spec:
         app: backend
     spec:
       containers:
-      - name: backend-service
-        image: muarwi/go-simple-microservice-backend:latest
-        ports:
-        - containerPort: 8081
-        env:
-        - name: DB_HOST
-          value: "postgres-service"
-        - name: DB_PORT
-          value: "5432"
-        - name: DB_USER
-          valueFrom:
-            secretKeyRef:
-              key: postgres-credentials
-              name: POSTGRES_USER
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              key: postgres-credentials
-              name: POSTGRES_PASSWORD
-        - name: DB_NAME
-          valueFrom:
-            secretKeyRef:
-              key: postgres-credentials
-              name: POSTGRES_DB
-        # liveness & readiness probes
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 8081
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8081
-          initialDelaySeconds: 30
-          periodSeconds: 15
+        - name: backend-service
+          image: muarwi/go-simple-microservice-backend:latest
+          ports:
+            - containerPort: 8081
+          env:
+            - name: DB_HOST
+              value: "postgres-service"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: postgres-user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: postgres-password
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: postgres-db
+          # liveness & readiness probes
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8081
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8081
+            initialDelaySeconds: 30
+            periodSeconds: 15
 
 
 

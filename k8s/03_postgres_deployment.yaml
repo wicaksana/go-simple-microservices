@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: postgres-deployment
-  namespace: go-microservices-app
+  namespace: go-microservice-app
   labels:
     app: postgres
 spec:
@@ -25,17 +25,17 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: postgres-credentials
-                  key: POSTGRES_USER
+                  key: postgres-user
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: postgres-credentials
-                  key: POSTGRES_PASSWORD
+                  key: postgres-password
             - name: POSTGRES_DB
               valueFrom:
                 secretKeyRef:
                   name: postgres-credentials
-                  key: POSTGRES_DB
+                  key: postgres-db
             - name: PGDATA # Data directory
               value: /var/lib/postgresql/data/pgdata
           volumeMounts:

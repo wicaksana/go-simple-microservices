@@ -17,3 +17,10 @@ go mod init backend-service
 go get .
 go mod tidy
 ```
+
+## Troubleshoot
+
+```bash
+kubectl run multitool --image=wbitt/network-multitool -n go-microservice-app
+kubectl exec -it multitool -n -n go-microservice-app -- bash
+```
